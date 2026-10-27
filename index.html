@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="el"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ο δικός σας πληθωρισμός</title>
+<meta name="description" content="Υπολογίστε πόσο ακρίβυνε το δικό σας καλάθι, με τα στοιχεία της ΕΛΣΤΑΤ για τον Σεπτέμβριο 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Commissioner:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (~66ch); charts break out to a wider measure; the calculator is the one boxed object on the page */
+:root{
+  --paper:#f7f8f7; --ink:#1c1f22; --muted:#5b636c; --rule:#d9dddf; --soft:#eceeee;
+  --heat:#c4473a; --road:#33679c; --food:#c9921a; --dine:#3f8f87; --other:#b2aaa4; --mid:#bdb5ae;
+  --display:"Noto Serif Display",Georgia,"Times New Roman",serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --ui:"Commissioner","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono","DejaVu Sans Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#131517; --ink:#e8e9e8; --muted:#9ba2a9; --rule:#2c3236; --soft:#1c2023;
+  --heat:#e5675a; --road:#6f9fd2; --food:#e0ad3d; --dine:#62b5ab; --other:#6e6863; --mid:#5f5a56; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#131517; --ink:#e8e9e8; --muted:#9ba2a9; --rule:#2c3236; --soft:#1c2023;
+  --heat:#e5675a; --road:#6f9fd2; --food:#e0ad3d; --dine:#62b5ab; --other:#6e6863; --mid:#5f5a56; color-scheme:dark}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:19px;line-height:1.62;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 80px}
+.col{max-width:680px;margin-inline:auto}
+.wide{max-width:900px;margin-inline:auto}
+.kicker{font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--heat)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,6.2vw,62px);line-height:1.04;letter-spacing:-.015em;margin:.3em 0 .35em;text-wrap:balance}
+h1 em{font-style:normal;color:var(--heat)}
+.dek{font-size:clamp(19px,2.3vw,23px);line-height:1.45;color:var(--muted);margin:0 0 1.2em;text-wrap:pretty}
+.byline{font-family:var(--ui);font-size:14px;color:var(--muted);display:flex;gap:6px 18px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:12px}
+.byline b{color:var(--ink);font-weight:600}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(25px,3.4vw,33px);line-height:1.15;margin:2.2em 0 .5em;text-wrap:balance}
+p{margin:0 0 1em}
+strong{font-weight:600}
+.hi-heat{color:var(--heat);font-weight:600}.hi-road{color:var(--road);font-weight:600}.hi-food{color:var(--food);font-weight:600}
+.keys{margin:2em 0 1em;padding:0;list-style:none;display:grid;gap:14px;font-family:var(--ui);font-size:16.5px;line-height:1.45}
+.keys li{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:baseline}
+.keys .n{font-family:var(--display);font-weight:700;font-size:30px;line-height:1;min-width:3.6ch;text-align:right;font-variant-numeric:tabular-nums}
+figure{margin:2.2em auto 2.4em}
+.ftitle{font-family:var(--mono);font-size:17px;line-height:1.35;margin:0;letter-spacing:-.01em}
+.fsub{font-family:var(--mono);font-size:13px;color:var(--muted);margin:.3em 0 0;line-height:1.4}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--ui);font-size:14px;margin:.9em 0 0;color:var(--ink)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:12px;height:12px;border-radius:2px;display:inline-block}
+.chart{position:relative;margin-top:.6em}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.chart text{font-family:var(--ui);fill:var(--muted);font-size:12.5px}
+.chart .lbl{fill:var(--ink);font-size:13.5px}
+.chart .val{fill:var(--ink);font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
+.chart .valw{fill:#fff;font-weight:700;font-size:14px}
+.chart .grid{stroke:var(--rule);stroke-width:1}
+.chart .ann{fill:var(--ink);font-size:13px}
+figcaption{font-family:var(--ui);font-size:13px;color:var(--muted);margin-top:.8em;line-height:1.45;max-width:680px}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);font-family:var(--ui);font-size:13px;line-height:1.35;padding:7px 10px;border-radius:4px;white-space:nowrap;transform:translate(-50%,calc(-100% - 10px));opacity:0;transition:opacity .12s;z-index:5}
+.tip.on{opacity:1}
+.tip b{font-weight:600}
+.pull{font-family:var(--display);font-size:clamp(24px,3.2vw,31px);line-height:1.25;margin:1.6em 0;padding-left:20px;border-left:3px solid var(--heat);text-wrap:balance}
+/* calculator */
+.calc{background:var(--soft);border-radius:6px;padding:22px clamp(16px,3vw,30px) 26px;margin:2.4em auto;font-family:var(--ui)}
+.calc h2{margin-top:.2em}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin:.6em 0 1.2em}
+.presets button{font-family:var(--ui);font-size:14px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);padding:7px 12px;border-radius:999px;cursor:pointer}
+.presets button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.presets button:focus-visible,.calc input:focus-visible{outline:2px solid var(--road);outline-offset:2px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:6px 28px}
+.crow{display:grid;grid-template-columns:1fr 92px 54px;gap:10px;align-items:center;font-size:14.5px;padding:5px 0;border-bottom:1px solid var(--rule);min-width:0}
+.crow label{min-width:0}
+.crow input{width:100%;font-family:var(--ui);font-size:15px;padding:5px 7px;border:1px solid var(--rule);border-radius:4px;background:var(--paper);color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+.crow .r{font-size:12.5px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.result{display:flex;flex-wrap:wrap;gap:12px 32px;align-items:flex-end;margin-top:1.4em}
+.result .big{font-family:var(--display);font-weight:700;font-size:clamp(48px,8vw,72px);line-height:1;font-variant-numeric:tabular-nums}
+.result .cap{font-size:14.5px;color:var(--muted);max-width:30ch;line-height:1.4}
+.note{font-size:13px;color:var(--muted);margin-top:1em;line-height:1.5}
+.method{font-family:var(--ui);font-size:15px;line-height:1.55;border-top:1px solid var(--rule);margin-top:3em;padding-top:1.4em}
+.method h2{font-family:var(--ui);font-size:15px;letter-spacing:.08em;text-transform:uppercase;margin:1.4em 0 .6em}
+.method ul{padding-left:1.1em;margin:0 0 1em}.method li{margin-bottom:.5em}
+.method a{color:var(--road)}
+a{color:var(--road)}
+.bio{font-style:italic;color:var(--muted)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+</head><body>
+<main class="wrap">
+<header class="col">
+  <div class="kicker">Πληθωρισμός · Εργαλείο</div>
+  <h1>Ο δικός σας <em>πληθωρισμός</em></h1>
+  <p class="dek">Ο πληθωρισμός του Σεπτεμβρίου 2026 ήταν 5,0%. Το δικό σας καλάθι όμως μπορεί να ακρίβυνε περισσότερο ή λιγότερο, ανάλογα με το πού ξοδεύετε. Βάλτε τα ποσά σας και δείτε.</p>
+  <div class="byline"><span><b>Κωνσταντίνος Κολοβός</b></span><span>Οκτώβριος 2026</span><span>Δεδομένα: ΕΛΣΤΑΤ</span></div>
+</header>
+<section class="calc wide" id="calc" aria-labelledby="calc-h">
+  <h2 id="calc-h" style="font-size:22px;margin-top:0">Το καλάθι σας</h2>
+  <p style="font-family:var(--body);margin:0 0 .4em">Βάλτε πόσα ξοδεύετε τον μήνα ανά κατηγορία, ή ξεκινήστε από το τυπικό καλάθι ενός πεμπτημορίου. Ο υπολογισμός χρησιμοποιεί τις ετήσιες μεταβολές τιμών του ΔΤΚ Σεπτεμβρίου 2026.</p>
+  <div class="presets" id="presets" role="group" aria-label="Τυπικά καλάθια"></div>
+  <div class="cgrid" id="cgrid"></div>
+  <div class="result">
+    <div><div class="big" id="cres">5,0%</div></div>
+    <div class="cap" id="ccap">ο εκτιμώμενος ετήσιος πληθωρισμός του καλαθιού σας. Γενικός ΔΤΚ: 5,0%.</div>
+  </div>
+  <div class="chart" id="c7" style="margin-top:1.2em"></div>
+  <p class="note">Ο υπολογισμός δεν ξέρει αν πληρώνετε ενοίκιο ή αν θερμαίνεστε με πετρέλαιο ή φυσικό αέριο: χρησιμοποιεί τη μέση μεταβολή κάθε κατηγορίας. Δεν αποθηκεύει τίποτα από όσα πληκτρολογείτε.</p>
+</section>
+<section class="col method">
+  <h2>Πώς υπολογίζεται</h2>
+  <p>Κάθε κατηγορία παίρνει την ετήσια μεταβολή τιμών του Δείκτη Τιμών Καταναλωτή της ΕΛΣΤΑΤ (Σεπτέμβριος 2026 έναντι Σεπτεμβρίου 2025). Ο δικός σας πληθωρισμός είναι ο μέσος όρος αυτών των μεταβολών, σταθμισμένος με το πόσα ξοδεύετε σε κάθε κατηγορία. Τα τυπικά καλάθια προέρχονται από την Έρευνα Οικογενειακών Προϋπολογισμών 2025 (Πίνακας 15, πεμπτημόρια ισοδύναμης δαπάνης).</p>
+  <p>Δεδομένα, κώδικας και μεθοδολογία: <a href="https://github.com/k-kolovos/greek-inflation-households">github.com/k-kolovos/greek-inflation-households</a></p>
+  <p class="bio">Ο Κωνσταντίνος Κολοβός είναι μαθηματικός, αναλυτής δεδομένων και συνεργάτης ερευνητής του Κέντρου Φιλελεύθερων Μελετών.</p>
+</section>
+</main>
+<script>
+const D = {"shares": [[31.89, 2.08, 3.02, 22.27, 3.98, 8.06, 6.46, 8.07, 0.97, 0.73, 6.55, 1.41, 4.51], [29.42, 2.9, 3.75, 19.01, 4.09, 7.03, 9.7, 6.37, 1.17, 1.5, 8.8, 1.63, 4.63], [25.35, 3.23, 4.74, 18.21, 4.23, 6.24, 10.38, 5.36, 1.99, 1.87, 11.6, 1.64, 5.16], [22.06, 2.92, 5.4, 16.63, 4.17, 5.92, 12.02, 4.94, 2.78, 2.57, 13.52, 1.77, 5.32], [13.22, 4.27, 4.88, 11.8, 5.22, 10.42, 16.21, 3.42, 7.57, 3.71, 12.35, 2.37, 4.57]], "ts": [["2019-01", 0.855, 0.582, 0.249, 0.5], ["2019-02", 1.171, 0.831, 0.411, 0.8], ["2019-03", 1.284, 1.007, 0.79, 1.1], ["2019-04", 1.04, 0.962, 0.923, 1.1], ["2019-05", 0.403, 0.382, 0.369, 0.6], ["2019-06", -0.049, 0.003, 0.117, 0.2], ["2019-07", -0.093, 0.025, 0.416, 0.4], ["2019-08", -0.362, -0.254, 0.153, 0.1], ["2019-09", -0.117, -0.026, 0.272, 0.2], ["2019-10", -0.812, -0.706, -0.323, -0.3], ["2019-11", 0.053, 0.183, 0.495, 0.5], ["2019-12", 0.686, 0.805, 0.943, 1.1], ["2020-01", 0.674, 0.825, 1.052, 1.1], ["2020-02", -0.01, 0.142, 0.426, 0.4], ["2020-03", -0.375, -0.02, 0.232, 0.2], ["2020-04", -1.142, -1.096, -1.036, -0.9], ["2020-05", -0.716, -0.717, -0.789, -0.7], ["2020-06", -0.885, -1.379, -1.909, -1.9], ["2020-07", -1.387, -1.636, -2.055, -2.1], ["2020-08", -1.542, -1.816, -2.235, -2.2], ["2020-09", -1.71, -2.019, -2.423, -2.3], ["2020-10", -1.47, -1.743, -2.123, -2.0], ["2020-11", -1.641, -1.936, -2.298, -2.1], ["2020-12", -1.923, -2.173, -2.443, -2.4], ["2021-01", -2.074, -2.208, -2.272, -2.4], ["2021-02", -1.495, -1.583, -1.697, -1.9], ["2021-03", -1.244, -1.677, -1.898, -2.0], ["2021-04", -0.487, -0.686, -0.879, -1.1], ["2021-05", -0.213, -0.578, -0.819, -1.2], ["2021-06", 1.018, 0.918, 0.702, 0.6], ["2021-07", 1.367, 1.204, 0.859, 0.7], ["2021-08", 1.938, 1.753, 1.312, 1.2], ["2021-09", 2.297, 2.198, 1.848, 1.9], ["2021-10", 3.848, 3.55, 2.856, 2.8], ["2021-11", 5.674, 5.188, 4.04, 4.0], ["2021-12", 6.063, 5.507, 4.276, 4.4], ["2022-01", 7.711, 7.064, 5.466, 5.5], ["2022-02", 8.962, 8.107, 6.221, 6.3], ["2022-03", 10.666, 9.845, 7.805, 8.0], ["2022-04", 12.731, 11.492, 8.89, 9.1], ["2022-05", 13.74, 12.707, 10.169, 10.5], ["2022-06", 13.737, 13.251, 11.368, 11.6], ["2022-07", 13.574, 12.932, 10.908, 11.3], ["2022-08", 13.983, 13.096, 10.862, 11.2], ["2022-09", 15.133, 14.211, 11.66, 12.1], ["2022-10", 9.898, 9.857, 8.769, 9.5], ["2022-11", 8.664, 8.912, 8.285, 8.8], ["2022-12", 7.728, 7.718, 6.945, 7.6], ["2023-01", 7.035, 7.077, 6.457, 7.3], ["2023-02", 5.921, 6.108, 5.888, 6.5], ["2023-03", 4.536, 4.966, 4.924, 5.4], ["2023-04", 2.921, 3.643, 4.209, 4.5], ["2023-05", 2.931, 3.453, 3.755, 4.1], ["2023-06", 2.594, 2.524, 2.307, 2.8], ["2023-07", 2.752, 2.778, 2.715, 3.5], ["2023-08", 1.969, 2.406, 2.81, 3.5], ["2023-09", 0.774, 1.363, 2.124, 2.4], ["2023-10", 3.772, 3.591, 3.22, 3.8], ["2023-11", 3.228, 2.986, 2.557, 2.9], ["2023-12", 3.639, 3.553, 3.25, 3.7], ["2024-01", 2.972, 2.958, 2.882, 3.2], ["2024-02", 2.853, 2.862, 2.725, 3.1], ["2024-03", 2.895, 3.051, 3.077, 3.4], ["2024-04", 2.633, 2.819, 2.873, 3.2], ["2024-05", 1.309, 1.757, 2.218, 2.4], ["2024-06", 1.269, 1.796, 2.283, 2.5], ["2024-07", 2.116, 2.548, 2.792, 3.0], ["2024-08", 3.208, 3.321, 3.167, 3.2], ["2024-09", 3.592, 3.466, 3.083, 3.1], ["2024-10", 2.521, 2.797, 2.889, 3.1], ["2024-11", 2.182, 2.574, 2.906, 3.0], ["2024-12", 2.283, 2.672, 3.091, 2.9], ["2025-01", 2.574, 2.903, 3.146, 3.1], ["2025-02", 2.676, 2.907, 2.933, 3.0], ["2025-03", 3.345, 3.303, 2.875, 3.1], ["2025-04", 2.635, 2.683, 2.47, 2.6], ["2025-05", 3.738, 3.62, 3.007, 3.3], ["2025-06", 3.951, 3.852, 3.289, 3.6], ["2025-07", 4.047, 3.957, 3.335, 3.7], ["2025-08", 2.851, 2.959, 2.747, 3.1], ["2025-09", 1.369, 1.59, 1.707, 1.8], ["2025-10", 1.824, 1.754, 1.572, 1.6], ["2025-11", 2.706, 2.75, 2.374, 2.8], ["2025-12", 2.767, 2.793, 2.438, 2.9], ["2026-01", 2.805, 2.856, 2.448, 2.9], ["2026-02", 3.143, 3.251, 2.731, 3.1], ["2026-03", 3.498, 3.528, 3.189, 3.4], ["2026-04", 5.278, 5.096, 4.394, 4.6], ["2026-05", 4.656, 4.852, 4.573, 4.9], ["2026-06", 3.995, 4.053, 3.773, 3.9], ["2026-07", 2.512, 2.734, 2.796, 2.7], ["2026-08", 3.154, 3.516, 3.48, 3.7], ["2026-09", 4.476, 4.888, 4.776, 5.1]], "c22": {"0": {"tot": 11.25, "food": 3.73, "housing": 5.57, "transport": 0.87, "rest": 0.57, "other": 0.51}, "1": {"tot": 10.88, "food": 3.44, "housing": 4.75, "transport": 1.31, "rest": 0.76, "other": 0.61}, "2": {"tot": 10.66, "food": 2.96, "housing": 4.55, "transport": 1.4, "rest": 1.0, "other": 0.74}, "3": {"tot": 10.34, "food": 2.58, "housing": 4.16, "transport": 1.62, "rest": 1.17, "other": 0.81}, "4": {"tot": 8.88, "food": 1.55, "housing": 2.95, "transport": 2.19, "rest": 1.07, "other": 1.12}}, "warm": [["Ελλάδα", 36.1, 18.1], ["Κύπρος", 34.6, 11.3], ["Βουλγαρία", 33.1, 16.1], ["Λιθουανία", 31.6, 16.7], ["Πορτογαλία", 30.6, 15.6], ["Ισπανία", 28.3, 15.9], ["Σλοβακία", 27.0, 8.1], ["Γαλλία", 23.5, 11.5], ["Ρουμανία", 21.4, 11.9], ["Ολλανδία", 21.3, 6.6], ["Ιταλία", 20.9, 8.6], ["Ουγγαρία", 16.8, 5.8], ["Κροατία", 13.7, 4.2], ["Βέλγιο", 13.2, 4.2], ["Τσεχία", 12.8, 4.1], ["Λετονία", 12.8, 4.3], ["Γερμανία", 12.6, 5.7], ["Δανία", 11.7, 4.5], ["Μάλτα", 10.9, 7.6], ["Ιρλανδία", 10.7, 4.5], ["Σουηδία", 10.1, 4.7], ["Σλοβενία", 10.0, 3.6], ["Αυστρία", 9.0, 4.0], ["Λουξεμβούργο", 8.7, 3.5], ["Πολωνία", 7.3, 3.2], ["Φινλανδία", 6.1, 2.6], ["Εσθονία", 5.7, 3.1]], "warmEU": {"TOTAL": 8.8, "A_60": 6.7, "B_60": 19.6}};
+const CPI = [0.6,0.0,0.3,14.7,0.6,1.4,11.3,-1.9,1.6,2.9,6.9,3.5,1.5];
+const CAT = ["Διατροφή","Αλκοόλ, καπνός","Ένδυση, υπόδηση","Στέγαση, ενέργεια","Οικιακός εξοπλισμός","Υγεία","Μεταφορές, καύσιμα","Επικοινωνίες","Αναψυχή, πολιτισμός","Εκπαίδευση","Εστίαση, ξενοδοχεία","Ασφάλειες, τράπεζες","Λοιπά, προσωπική φροντίδα"];
+const QL = ["1ο (φτωχότερο 20%)","2ο","3ο","4ο","5ο (πλουσιότερο 20%)"];
+const QS = ["1ο","2ο","3ο","4ο","5ο"];
+const fmt = (v,p=1)=> (v<0?"−":"")+Math.abs(v).toFixed(p).replace(".",",");
+const NS="http://www.w3.org/2000/svg";
+function el(tag,attrs,parent,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;if(parent)parent.appendChild(e);return e}
+function svg(host,w,h){host.innerHTML="";const s=el("svg",{viewBox:`0 0 ${w} ${h}`,role:"img"},host);const t=document.createElement("div");t.className="tip";host.appendChild(t);return [s,t]}
+function tipAt(host,tip,evt,html){const r=host.getBoundingClientRect();const x=(evt.touches?evt.touches[0].clientX:evt.clientX)-r.left;const y=(evt.touches?evt.touches[0].clientY:evt.clientY)-r.top;tip.innerHTML=html;tip.style.left=Math.max(70,Math.min(r.width-70,x))+"px";tip.style.top=y+"px";tip.classList.add("on")}
+function hide(t){t.classList.remove("on")}
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function quint(sh, rates){const s=sh.reduce((a,b)=>a+b,0);return sh.map((w,i)=>w*rates[i]/s)}
+const QI = D.shares.map(sh=>quint(sh,CPI));
+const QT = QI.map(c=>c.reduce((a,b)=>a+b,0));
+const narrow = ()=> document.querySelector(".wide").clientWidth < 560;
+
+/* 1 — quintile bars */
+function c1(){const host=document.getElementById("c1");const N=narrow();const W=N?520:900,H=N?380:330,L=46,R=10,T=20,B=N?62:48;
+ const [s,tip]=svg(host,W,H);const y=v=>T+(H-T-B)*(1-v/6);const bw=(W-L-R)/5;
+ [0,1,2,3,4,5,6].forEach(v=>{el("line",{x1:L,x2:W-R,y1:y(v),y2:y(v),class:"grid"},s);el("text",{x:L-8,y:y(v)+4,"text-anchor":"end"},s,fmt(v,0)+"%")});
+ QT.forEach((v,i)=>{const x=L+bw*i+bw*0.17,w=bw*0.66;const col=i==0?"var(--heat)":i==4?"var(--road)":"var(--mid)";
+  const r=el("rect",{x,y:y(v),width:w,height:y(0)-y(v),fill:col,rx:2},s);
+  el("text",{x:x+w/2,y:y(v)+(N?30:34),"text-anchor":"middle",class:"valw",style:`font-size:${N?21:22}px`},s,fmt(v)+"%");
+  const lab=N?QS[i]:QL[i];el("text",{x:x+w/2,y:H-B+(N?28:24),"text-anchor":"middle",class:"lbl",style:N?"font-size:22px":""},s,lab);
+  const hit=el("rect",{x:L+bw*i,y:T,width:bw,height:H-T-B,fill:"transparent"},s);
+  const h=e=>tipAt(host,tip,e,`<b>${QL[i]} πεμπτημόριο</b><br>Πληθωρισμός ${fmt(v,2)}%`);hit.addEventListener("mousemove",h);hit.addEventListener("touchstart",h,{passive:true});hit.addEventListener("mouseleave",()=>hide(tip))});
+ el("line",{x1:L,x2:W-R,y1:y(5),y2:y(5),stroke:"var(--ink)","stroke-dasharray":"4 4","stroke-width":1.2},s);
+ el("text",{x:W-R,y:y(5)-8,"text-anchor":"end",class:"ann"},s,"γενικός ΔΤΚ 5,0%");
+}
+
+/* 2 — time series */
+function c2(){const host=document.getElementById("c2");const N=narrow();const W=N?520:900,H=N?440:360,L=44,R=N?14:70,T=24,B=34;
+ const [s,tip]=svg(host,W,H);const ts=D.ts;const n=ts.length;const x=i=>L+(W-L-R)*i/(n-1);const y=v=>T+(H-T-B)*(1-(v+3)/19);
+ [-2,0,2,4,6,8,10,12,14,16].forEach(v=>{el("line",{x1:L,x2:W-R,y1:y(v),y2:y(v),class:"grid",style:v==0?"stroke:var(--muted);stroke-opacity:.5":""},s);if(v%4==0||!N)el("text",{x:L-8,y:y(v)+4,"text-anchor":"end",style:N?"font-size:20px":""},s,fmt(v,0)+"%")});
+ ts.forEach((d,i)=>{if(d[0].endsWith("-01"))el("text",{x:x(i),y:H-10,"text-anchor":"start",style:N?"font-size:20px":""},s,N?"’"+d[0].slice(2,4):d[0].slice(0,4))});
+ // gap area
+ let p="M"+ts.map((d,i)=>`${x(i)},${y(d[1])}`).join("L")+"L"+ts.map((d,i)=>`${x(n-1-i)},${y(ts[n-1-i][3])}`).join("L")+"Z";
+ el("path",{d:p,fill:"var(--heat)","fill-opacity":.13},s);
+ const line=(k,col)=>el("path",{d:"M"+ts.map((d,i)=>`${x(i)},${y(d[k])}`).join("L"),fill:"none",stroke:col,"stroke-width":2.6,"stroke-linejoin":"round"},s);
+ line(3,"var(--road)");line(1,"var(--heat)");
+ // annotations
+ const i22=ts.findIndex(d=>d[0]=="2022-09");el("circle",{cx:x(i22),cy:y(ts[i22][1]),r:4.5,fill:"var(--heat)"},s);el("circle",{cx:x(i22),cy:y(ts[i22][3]),r:4.5,fill:"var(--road)"},s);
+ el("text",{x:N?x(i22)-10:x(i22)+10,y:y(ts[i22][1])-4,"text-anchor":N?"end":"start",class:"ann",style:N?"font-size:19px":""},s,N?`9/2022: ${fmt(ts[i22][1])}% · ${fmt(ts[i22][3])}%`:`Σεπτ. 2022: ${fmt(ts[i22][1])}% έναντι ${fmt(ts[i22][3])}%`);
+ const e=n-1;el("circle",{cx:x(e),cy:y(ts[e][1]),r:4.5,fill:"var(--heat)"},s);el("circle",{cx:x(e),cy:y(ts[e][3]),r:4.5,fill:"var(--road)"},s);
+ if(!N){el("text",{x:x(e)+8,y:y(ts[e][3])-6,class:"val",style:"fill:var(--road)"},s,fmt(ts[e][3])+"%");el("text",{x:x(e)+8,y:y(ts[e][1])+14,class:"val",style:"fill:var(--heat)"},s,fmt(ts[e][1])+"%")}
+ // hover
+ const cross=el("line",{y1:T,y2:H-B,stroke:"var(--muted)","stroke-width":1,opacity:0},s);
+ const ov=el("rect",{x:L,y:T,width:W-L-R,height:H-T-B,fill:"transparent"},s);
+ const mv=evt=>{const r=s.getBoundingClientRect();const cx=((evt.touches?evt.touches[0].clientX:evt.clientX)-r.left)*W/r.width;let i=Math.round((cx-L)/(W-L-R)*(n-1));i=Math.max(0,Math.min(n-1,i));cross.setAttribute("x1",x(i));cross.setAttribute("x2",x(i));cross.setAttribute("opacity",.6);
+  const d=ts[i];const [yy,mm]=d[0].split("-");tipAt(host,tip,evt,`<b>${mm}/${yy}</b><br>Φτωχότερο 20%: ${fmt(d[1])}%<br>Πλουσιότερο 20%: ${fmt(d[3])}%<br>Διαφορά: ${fmt(d[1]-d[3])} μον.`)};
+ ov.addEventListener("mousemove",mv);ov.addEventListener("touchmove",mv,{passive:true});ov.addEventListener("touchstart",mv,{passive:true});ov.addEventListener("mouseleave",()=>{hide(tip);cross.setAttribute("opacity",0)});
+}
+
+/* 3 — crossing lines */
+function c3(){const host=document.getElementById("c3");const N=narrow();const W=N?520:900,H=N?420:340,L=40,R=N?20:120,T=24,B=N?64:48;
+ const [s,tip]=svg(host,W,H);const x=i=>L+40+(W-L-R-80)*i/4;const y=v=>T+(H-T-B)*(1-v/3.8);
+ [0,1,2,3].forEach(v=>{el("line",{x1:L,x2:W-R+ (N?0:60),y1:y(v),y2:y(v),class:"grid"},s);el("text",{x:L-8,y:y(v)+4,"text-anchor":"end",style:N?"font-size:20px":""},s,fmt(v,0))});
+ const st=QI.map(c=>c[3]),mt=QI.map(c=>c[6]);
+ const ln=(arr,col)=>{el("path",{d:"M"+arr.map((v,i)=>`${x(i)},${y(v)}`).join("L"),fill:"none",stroke:col,"stroke-width":3.2},s);arr.forEach((v,i)=>el("circle",{cx:x(i),cy:y(v),r:6,fill:col,stroke:"var(--paper)","stroke-width":2},s))};
+ ln(st,"var(--heat)");ln(mt,"var(--road)");
+ st.forEach((v,i)=>{const up=i<4;el("text",{x:x(i),y:y(v)+(up?-14:26),"text-anchor":"middle",class:"val",style:`fill:var(--heat);${N?"font-size:22px":""}`},s,fmt(v))});
+ mt.forEach((v,i)=>{const up=i==4;el("text",{x:x(i),y:y(v)+(up?-14:26),"text-anchor":"middle",class:"val",style:`fill:var(--road);${N?"font-size:22px":""}`},s,fmt(v))});
+ const m0=N?0:1,m1=N?1:2;el("text",{x:(x(m0)+x(m1))/2,y:y((st[m0]+st[m1])/2)+(N?46:-22),"text-anchor":"middle",class:"val",style:`fill:var(--heat);font-size:${N?24:16}px`},s,"Στέγαση");
+ el("text",{x:(x(m0)+x(m1))/2,y:y((mt[m0]+mt[m1])/2)+(N?-30:38),"text-anchor":"middle",class:"val",style:`fill:var(--road);font-size:${N?24:16}px`},s,"Μεταφορές");
+ QS.forEach((q,i)=>{el("text",{x:x(i),y:H-B+30,"text-anchor":"middle",class:"lbl",style:N?"font-size:22px":""},s,q);if(!N&&(i==0||i==4))el("text",{x:x(i),y:H-B+46,"text-anchor":"middle"},s,i==0?"φτωχότερο 20%":"πλουσιότερο 20%")});
+ if(N){el("text",{x:x(0),y:H-6,"text-anchor":"middle",style:"font-size:18px"},s,"φτωχότ.");el("text",{x:x(4),y:H-6,"text-anchor":"middle",style:"font-size:18px"},s,"πλουσιότ.")}
+}
+
+/* 4 — stacked composition */
+const GROUPS=[["Στέγαση","var(--heat)",[3]],["Μεταφορές","var(--road)",[6]],["Εστίαση, ξενοδοχεία","var(--dine)",[10]],["Διατροφή","var(--food)",[0]],["Υπόλοιπες ομάδες","var(--other)",[1,2,4,5,7,8,9,11,12]]];
+function c4(){const host=document.getElementById("c4");const N=narrow();const lg=document.getElementById("l4");lg.innerHTML=GROUPS.map(g=>`<span><i style="background:${g[1]}"></i>${g[0]}</span>`).join("");
+ const W=N?520:900,rowH=N?70:52,L=N?70:178,R=N?84:70,T=8,B=36,H=T+rowH*5+B;const [s,tip]=svg(host,W,H);const x=v=>L+(W-L-R)*v/5.4;
+ [0,1,2,3,4,5].forEach(v=>{el("line",{x1:x(v),x2:x(v),y1:T,y2:H-B,class:"grid"},s);el("text",{x:x(v),y:H-12,"text-anchor":"middle",style:N?"font-size:20px":""},s,fmt(v,0))});
+ QI.forEach((c,q)=>{const yy=T+rowH*q+rowH*0.18,hh=rowH*0.64;let acc=0;
+  el("text",{x:L-10,y:yy+hh/2+5,"text-anchor":"end",class:"lbl",style:N?"font-size:22px":""},s,N?QS[q]:QL[q]);
+  GROUPS.forEach(g=>{const v=g[2].reduce((a,i)=>a+c[i],0);const x0=x(acc),w=Math.max(0,x(acc+v)-x(acc)-2);
+   const r=el("rect",{x:x0,y:yy,width:w,height:hh,fill:g[1]},s);
+   if(v>=0.45)el("text",{x:x0+w/2,y:yy+hh/2+5,"text-anchor":"middle",class:(g[0]=="Στέγαση"||g[0]=="Μεταφορές")?"valw":"val",style:N?"font-size:19px":"font-size:13px"},s,fmt(v));
+   const h=e=>tipAt(host,tip,e,`<b>${QL[q]}</b><br>${g[0]}: ${fmt(v,2)} μον.`);r.addEventListener("mousemove",h);r.addEventListener("touchstart",h,{passive:true});r.addEventListener("mouseleave",()=>hide(tip));
+   acc+=v});
+  el("text",{x:x(acc)+8,y:yy+hh/2+6,class:"val",style:N?"font-size:22px":"font-size:15px"},s,fmt(QT[q])+"%")});
+}
+
+/* 5 — housing items */
+function c5(){const host=document.getElementById("c5");const N=narrow();const items=[["Φυσικό αέριο",55.2,"var(--heat)"],["Πετρέλαιο θέρμανσης",53.2,"var(--heat)"],["Ηλεκτρισμός",15.0,"var(--heat)"],["Ενοίκια",5.9,"var(--mid)"],null,["Στέγαση (σύνολο ομάδας)",14.7,"var(--muted)"],["Γενικός ΔΤΚ",5.0,"var(--muted)"]];
+ const W=N?520:900,rowH=N?64:44,L=N?0:200,R=70,T=6;const H=T+rowH*items.length-(N?0:10)+(N?0:6);const [s,tip]=svg(host,W,H+24);const x=v=>L+(W-L-R)*v/60;
+ if(!N)[0,10,20,30,40,50,60].forEach(v=>{el("line",{x1:x(v),x2:x(v),y1:T,y2:H,class:"grid"},s);el("text",{x:x(v),y:H+18,"text-anchor":"middle"},s,v+"%")});
+ items.forEach((it,i)=>{if(!it)return;const yy=T+rowH*i;
+  if(N){el("text",{x:0,y:yy+20,class:"lbl",style:"font-size:21px"},s,it[0]);el("rect",{x:x(0),y:yy+28,width:x(it[1])-x(0),height:22,fill:it[2]},s);el("text",{x:x(it[1])+8,y:yy+46,class:"val",style:"font-size:21px"},s,"+"+fmt(it[1])+"%")}
+  else{el("text",{x:L-10,y:yy+rowH/2+5,"text-anchor":"end",class:"lbl"},s,it[0]);el("rect",{x:x(0),y:yy+rowH*0.2,width:x(it[1])-x(0),height:rowH*0.6,fill:it[2]},s);el("text",{x:x(it[1])+8,y:yy+rowH/2+5,class:"val"},s,"+"+fmt(it[1])+"%")}
+ });
+}
+
+/* 6 — EU cold homes */
+function c6(){const host=document.getElementById("c6");const N=narrow();const w=D.warm;const W=N?520:900,rowH=N?34:21,L=N?190:130,R=50,T=4;const H=T+rowH*w.length+26;const [s,tip]=svg(host,W,H);const x=v=>L+(W-L-R)*v/40;
+ [0,10,20,30,40].forEach(v=>{el("line",{x1:x(v),x2:x(v),y1:T,y2:H-24,class:"grid"},s);el("text",{x:x(v),y:H-6,"text-anchor":"middle",style:N?"font-size:20px":""},s,v+"%")});
+ const eu=D.warmEU.B_60;el("line",{x1:x(eu),x2:x(eu),y1:T,y2:H-24,stroke:"var(--ink)","stroke-dasharray":"3 3"},s);
+ w.forEach((d,i)=>{const yy=T+rowH*i;const isEL=d[0]=="Ελλάδα";
+  el("text",{x:L-8,y:yy+rowH*0.72,"text-anchor":"end",class:"lbl",style:`${N?"font-size:20px;":"font-size:12.5px;"}${isEL?"font-weight:700;fill:var(--heat)":""}`},s,d[0]);
+  const r=el("rect",{x:x(0),y:yy+rowH*0.15,width:x(d[1])-x(0),height:rowH*0.7,fill:isEL?"var(--heat)":"var(--mid)"},s);
+  if(isEL||i<3||N)el("text",{x:x(d[1])+6,y:yy+rowH*0.72,class:"val",style:N?"font-size:19px":"font-size:12.5px"},s,fmt(d[1])+"%");
+  const h=e=>tipAt(host,tip,e,`<b>${d[0]}</b><br>Φτωχοί: ${fmt(d[1])}%<br>Σύνολο πληθυσμού: ${fmt(d[2])}%`);r.addEventListener("mousemove",h);r.addEventListener("touchstart",h,{passive:true});r.addEventListener("mouseleave",()=>hide(tip))});
+ el("text",{x:x(eu)+6,y:T+rowH*(w.length-1),class:"ann",style:N?"font-size:19px":""},s,`ΕΕ-27: ${fmt(eu)}%`);
+}
+
+/* 7 — calculator */
+const BASE=2000;function basket(q){const a=D.shares[q].map(v=>Math.round(v/100*BASE));const d=BASE-a.reduce((x,y)=>x+y,0);a[a.indexOf(Math.max(...a))]+=d;return a}let cur=basket(0);
+function c7draw(vals){const host=document.getElementById("c7");const N=narrow();const tot=vals.reduce((a,b)=>a+b,0)||1;const c=vals.map((v,i)=>v*CPI[i]/tot);
+ const W=N?520:900,H=N?96:70;const [s]=svg(host,W,H);const sum=c.reduce((a,b)=>a+b,0);const pos=c.map((v,i)=>[v,i]).filter(a=>a[0]>0);const neg=c.filter(v=>v<0).reduce((a,b)=>a+b,0);
+ const x=v=>(W-6)*v/Math.max(6,sum+0.5);let acc=0;
+ GROUPS.forEach(g=>{const v=g[2].reduce((a,i)=>a+Math.max(0,c[i]),0);if(v<=0)return;const w=Math.max(0,x(acc+v)-x(acc)-2);el("rect",{x:x(acc),y:0,width:w,height:N?46:34,fill:g[1]},s);if(v>=0.45&&w>40)el("text",{x:x(acc)+w/2,y:N?30:22,"text-anchor":"middle",class:(g[0]=="Στέγαση"||g[0]=="Μεταφορές")?"valw":"val",style:N?"font-size:19px":"font-size:13px"},s,fmt(v));acc+=v});
+ el("text",{x:0,y:H-6,style:N?"font-size:18px":""},s,"Συμβολή ανά κατηγορία (μονάδες)"+(neg<-0.005?` · αρνητική συμβολή ${fmt(neg,2)}`:""));
+}
+function calc(){const vals=CAT.map((_,i)=>Math.max(0,parseFloat(document.getElementById("cat"+i).value.replace(",","."))||0));const tot=vals.reduce((a,b)=>a+b,0);
+ const inf=tot?vals.reduce((a,v,i)=>a+v*CPI[i],0)/tot:0;document.getElementById("cres").textContent=fmt(inf)+"%";
+ document.getElementById("ccap").textContent=`ο εκτιμώμενος ετήσιος πληθωρισμός του καλαθιού σας (σύνολο ${tot.toLocaleString("el-GR")} € τον μήνα). Γενικός ΔΤΚ: 5,0%.`;
+ vals.forEach((v,i)=>document.getElementById("pct"+i).textContent=tot?fmt(v/tot*100)+"%":"–");c7draw(vals)}
+function setPreset(q){cur=basket(q);cur.forEach((v,i)=>document.getElementById("cat"+i).value=v);
+ document.querySelectorAll("#presets button").forEach((b,i)=>b.setAttribute("aria-pressed",i==q?"true":"false"));calc()}
+function buildCalc(){const p=document.getElementById("presets");QL.forEach((q,i)=>{const b=document.createElement("button");b.type="button";b.textContent=i==0?"Φτωχότερο 20%":i==4?"Πλουσιότερο 20%":q+" πεμπτημόριο";b.setAttribute("aria-pressed",i==0?"true":"false");b.addEventListener("click",()=>setPreset(i));p.appendChild(b)});
+ const g=document.getElementById("cgrid");g.innerHTML=CAT.map((c,i)=>`<div class="crow"><label for="cat${i}">${c} <span class="r" style="display:block;text-align:left">${CPI[i]>=0?"+":""}${fmt(CPI[i])}% τιμές</span></label><input id="cat${i}" inputmode="decimal" value="${cur[i]}" aria-describedby="pct${i}"><span class="r" id="pct${i}"></span></div>`).join("");
+ CAT.forEach((_,i)=>document.getElementById("cat"+i).addEventListener("input",()=>{document.querySelectorAll("#presets button").forEach(b=>b.setAttribute("aria-pressed","false"));calc()}));calc()}
+
+function drawAll(){calc()}
+buildCalc();drawAll();
+let rt;window.addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(drawAll,150)});
+</script>
+</body></html>
