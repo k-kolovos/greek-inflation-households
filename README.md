@@ -11,9 +11,12 @@
 
 ## Αρχεία
 - `index.html`: το εργαλείο (GitHub Pages)
-- `dedomena/`: μερίδια ΕΟΠ 2025, μεταβολές ΔΤΚ Σεπτ. 2026, ΕνΔΤΚ Eurostat (prc_hicp_minr), EU-SILC 2025 (ilc_mdes01)
-- `kwdikas/ypologismos.py`: ο υπολογισμός (`python kwdikas/ypologismos.py`)
-- `grafimata/`: τα γραφήματα του άρθρου
+- `eop2025_pinakas15_pemptimoria.csv`: μερίδια δαπάνης ανά πεμπτημόριο, ΕΟΠ 2025
+- `dtk_sept2026_etisia_metavoli.csv`: ετήσιες μεταβολές ΔΤΚ, Σεπτέμβριος 2026
+- `eurostat_hicp_el_2018_2026.csv`: Εναρμονισμένος ΔΤΚ (Eurostat, prc_hicp_minr)
+- `eurostat_silc_2025_krio_spiti.csv`: αδυναμία θέρμανσης κατοικίας (EU-SILC, ilc_mdes01)
+- `ypologismos.py`: ο υπολογισμός (`python ypologismos.py`)
+- `grafima1.png`, `grafima2.png`, `grafima3.png`: τα γραφήματα του άρθρου
 
 ## Πηγές
 ΕΛΣΤΑΤ (ΔΤΚ Σεπτεμβρίου 2026, ΕΟΠ 2025), Eurostat (HICP ECOICOP 2, EU-SILC).
